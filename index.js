@@ -16,8 +16,10 @@ var button = buttons.ActionButton({
         "32": "./icon-32.png",
         "64": "./icon-64.png"
     },
-    onClick: handleClick
+    onClick: bindEditorTriggers
 });
+
+
 
 function addComment(thePort, content) {
     console.log("commenting...");
@@ -59,7 +61,7 @@ function refreshComments(thePort) {
     }).get();
 }
 
-function handleClick(state) {
+function bindEditorTriggers(state) {
     console.log("handle click")
     var worker = tabs.activeTab.attach({
         contentScriptFile: "./editor-trigger.js"
@@ -67,6 +69,8 @@ function handleClick(state) {
     });
 
     worker.port.emit("attachEditorTriggers", "article#wikiArticle>p");
+    worker.port.emit("attachEditorTriggers", "article#wikiArticle li");
+
 
     worker.port.on("editorTriggersAttached", function() {
         console.log("triggers attached");
@@ -80,7 +84,7 @@ function handleClick(state) {
             width: 600,
             height: 400,
             contentURL: "./editor.html",
-            contentScriptFile: "./editor.js",
+            contentScriptFile: ["./highlight.min.js","./marked.min.js","./editor.js"],
             contentScriptOptions: {
                 anchor: anchor,
                 url: tabs.activeTab.url
@@ -102,4 +106,13 @@ function handleClick(state) {
 
 
     console.log("end")
+}
+
+tabs.on("ready", logURL);
+
+function logURL(tab) {
+    console.log("loaded", tab.url);
+    if (tab.url.indexOf("https://developer.mozilla.org/") !== -1) {
+        bindEditorTriggers();
+    }
 }
