@@ -62,7 +62,6 @@ function refreshComments(thePort) {
 }
 
 function bindEditorTriggers(state) {
-    console.log("handle click")
     var worker = tabs.activeTab.attach({
         contentScriptFile: "./editor-trigger.js"
 
@@ -76,9 +75,9 @@ function bindEditorTriggers(state) {
         console.log("triggers attached");
     });
 
-    worker.port.on("openEditor", function(newAnchor) {
-        console.log("anchor", newAnchor);
-        anchor = newAnchor;
+    worker.port.on("openEditor", function(obj) {
+        console.log("config for editor", obj);
+        anchor = obj.anchor;
 
         var commentEditorDialogPanel = panel.Panel({
             width: 600,
@@ -87,7 +86,8 @@ function bindEditorTriggers(state) {
             contentScriptFile: ["./highlight.min.js","./marked.min.js","./editor.js"],
             contentScriptOptions: {
                 anchor: anchor,
-                url: tabs.activeTab.url
+                url: tabs.activeTab.url,
+                selector: obj.selector
             }
         });
 
@@ -99,6 +99,11 @@ function bindEditorTriggers(state) {
         commentEditorDialogPanel.port.on("addComment", function(data) {
             console.log("Received add comments call from panel", data);
             addComment(commentEditorDialogPanel.port, data.comment);
+        });
+
+        commentEditorDialogPanel.port.on("changeContent", function(data) {
+            console.log("Received changeContent", data);
+            worker.port.emit("changeContent", data);
         });
 
         commentEditorDialogPanel.show();
