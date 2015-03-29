@@ -1,0 +1,16 @@
+{
+  "title": "MDN Comments",
+  "name": "mdn-comments",
+  "version": "0.0.1",
+  "description": "A basic add-on to add a commenting system to MDN",
+  "main": "index.js",
+  "author": "Andre Alves Garzia",
+  "engines": {
+    "firefox": ">=38.0a1",
+    "fennec": ">=38.0a1"
+  },
+  "license": "MIT",
+  "permissions": {
+    "cross-domain-content": ["https://cryptic-garden-2517.herokuapp.com/"]
+  }
+}
